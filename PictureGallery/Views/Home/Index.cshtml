@@ -1,0 +1,70 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>ASP.NET</h1>
+    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
+    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+</div>
+
+@Html.Action("RenderGellery")
+<p>
+    @Html.ActionLink("Добавить изображение", "Create")
+</p>
+
+
+@section scripts{
+
+    @Scripts.Render("~/bundles/jquery")
+
+    @Scripts.Render("~/Scripts/jquery-1.10.2.min.js")
+
+
+    @*<script type="text/javascript">
+
+            $("#glrPag li a").click(function(event) {
+                event.preventDefault();
+                var pagei = 2;
+                $.getJSON("JsonTest",
+                    {page: pagei },
+                    function(data) {
+                        $('#test').html(data.FilePath);
+                        //  $("#img1").attr("src", data.Content);
+                        $("#img1").attr("src", "@Url.Action("JsonTest",new{page=2})");
+                        alert("+");
+                    });
+
+
+            });
+
+        </script>*@
+    <script type="text/javascript">
+        $("#glrPag li a").click(function(event) {
+
+            event.preventDefault();
+            var p = this.textContent;
+            $.getJSON("Home/GetGalleryPage",
+                { page:"2" },
+                function(data) {
+                    for (var i = 0; i < data.length; i++) {
+                        $("#item" + (i + 1)).attr("src", "GetImage?=" + data[i].Id);
+                    }
+                })
+        });
+    
+    </script>
+
+    @*<script type="text/javascript">
+        
+        $("#glrPag li a").click(function (event) {
+            var ie = 1;
+            event.preventDefault();
+            @*$("#img"+ie).attr("src", "@Url.Action("JsonTest",new{page=2})");
+            $(".item").each(function() {
+                $(this).attr("src", "JsonTest?page="+ie);
+            });
+            ie++;
+        });
+    </script>*@
+}
