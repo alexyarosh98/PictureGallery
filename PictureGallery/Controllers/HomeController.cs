@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Linq;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace PictureGallery.Controllers
     public class HomeController : Controller
     {
         private ImagesContext db =new ImagesContext();
+        private DataContext dc=new DataContext(@"data source=(localdb)\MSSQLLocalDB;initial catalog=ImagesDB;integrated security=True");
         public ActionResult Index()
         {
             return View();
@@ -59,24 +61,28 @@ namespace PictureGallery.Controllers
         [HttpGet]
         public ActionResult GetGalleryPage(int page=1)
         {
+            int count = dc.GetTable<Image>().Count();
             if (page != 1)
             {
-                var imgInfos = db.Images.ToList();
-                var dsadsad = imgInfos.Take(3).Select(i=>i.Id);
-                IEnumerable<int> img = imgInfos.Skip(page * 3).Take(3).Select(i => i.Id);
+                
+                int[] arr=new int[3];
+                for (int i = 0; i < 3; i++)
+                {
+                }
+                //var dsadsad = imgInfos.Take(3).Select(i=>i.Id);
+                //var img = imgInfos.Skip(page * 3).Take(3);
                 //db.Images.OrderBy(i => i.Id)
                 //    .Skip(page * 3)
                 //    .Take(3)
                 //    .ToList()
                 //    .Select(i => new {Id = i.Id});
-                Debug.WriteLine("&&&&&&&&&&&&&&&&&&"+img.Count());
-                foreach (var i in imgInfos)
-                {
-                    Debug.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!"+i.Id);
-                }
-                return Json(img, JsonRequestBehavior.AllowGet);
+                // Debug.WriteLine("&&&&&&&&&&&&&&&&&&"+img.Count());
+                
+                int[] ar = new int[]{2, 3, 4};
+                return Json(ar, JsonRequestBehavior.AllowGet);
             }
-            return Json(db.Images.Take(3),JsonRequestBehavior.AllowGet);
+            int[] atr = new int[] {3, 4, 5};
+            return Json(atr,JsonRequestBehavior.AllowGet);
 
         }
 

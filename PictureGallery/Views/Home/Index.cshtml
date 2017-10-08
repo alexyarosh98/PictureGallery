@@ -45,12 +45,12 @@
             event.preventDefault();
             var p = this.textContent;
             $.getJSON("Home/GetGalleryPage",
-                { page:"2" },
+                { page: parseInt(p).toString() },
                 function(data) {
-                    for (var i = 0; i < data.length; i++) {
-                        $("#item" + (i + 1)).attr("src", "GetImage?=" + data[i].Id);
+                    for (var i = 0; i < 3 /*data.length*/; i++) {
+                        $("#img" + (i + 1)).attr("src", "Home/GetImage?id=" + data[i]);
                     }
-                })
+                });
         });
     
     </script>
