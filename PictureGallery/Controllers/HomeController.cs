@@ -5,6 +5,7 @@ using System.Data.Linq;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Web;
 using System.Web.Mvc;
 using ImagesDatebase;
@@ -15,7 +16,6 @@ namespace PictureGallery.Controllers
     public class HomeController : Controller
     {
         private ImagesContext db =new ImagesContext();
-        private DataContext dc=new DataContext(@"data source=(localdb)\MSSQLLocalDB;initial catalog=ImagesDB;integrated security=True");
         public ActionResult Index()
         {
             return View();
@@ -37,53 +37,40 @@ namespace PictureGallery.Controllers
 
 
         [ChildActionOnly]
-        public ActionResult RenderGellery()
+        public ActionResult RenderGellery(int page=1)
         {
-            return PartialView("_RenderGallery");
+            ViewBag.PageAmount = db.Set<Image>().Count()%3==0?db.Set<Image>().Count()/3:db.Set<Image>().Count()/3+1;
+            return Request.IsAjaxRequest() ? PartialView("_RenderGallery") : GetGalleryPage(page);
         }
 
         [HttpGet]
         public ActionResult GetImage(int id)
         {
-
-            //PictureModel picture=new PictureModel();
-            //picture.FilePath = "/Images/Image3_big.jpg";
-            //picture.Description = "world";
-            //picture.Content = db.Images.FirstOrDefault().Content;
+            if (id == -1) return null;
 
             Image img = db.Images.FirstOrDefault(i => i.Id == id);
 
             return img == null ? null : File(img.Content, "image/jpg");
-
-          // return Json(picture.Content, JsonRequestBehavior.AllowGet);
-
         }
         [HttpGet]
         public ActionResult GetGalleryPage(int page=1)
         {
-            int count = dc.GetTable<Image>().Count();
-            if (page != 1)
-            {
-                
-                int[] arr=new int[3];
+            
+                IEnumerable<Image> query = db.Set<Image>().OrderByDescending(i=>i.Id).Skip((page-1)*3).Take(3);
+            int[] arr = new int[3];
+            
                 for (int i = 0; i < 3; i++)
                 {
+                    if (i >= query.Count())
+                    {
+                        arr[i] = -1;
+                        continue;
+                    }
+                    arr[i] = query.ElementAt(i).Id;
                 }
-                //var dsadsad = imgInfos.Take(3).Select(i=>i.Id);
-                //var img = imgInfos.Skip(page * 3).Take(3);
-                //db.Images.OrderBy(i => i.Id)
-                //    .Skip(page * 3)
-                //    .Take(3)
-                //    .ToList()
-                //    .Select(i => new {Id = i.Id});
-                // Debug.WriteLine("&&&&&&&&&&&&&&&&&&"+img.Count());
-                
-                int[] ar = new int[]{2, 3, 4};
-                return Json(ar, JsonRequestBehavior.AllowGet);
-            }
-            int[] atr = new int[] {3, 4, 5};
-            return Json(atr,JsonRequestBehavior.AllowGet);
+                if (Request.IsAjaxRequest()) return Json(arr, JsonRequestBehavior.AllowGet);
 
+            return View("_RenderGalleryNotAjax", arr);
         }
 
         public ActionResult Create()
@@ -97,12 +84,12 @@ namespace PictureGallery.Controllers
             if (ModelState.IsValid && uploadImage != null)
             {
                 byte[] imageData = null;
-                // считываем переданный файл в массив байтов
+                
                 using (var binaryReader = new BinaryReader(uploadImage.InputStream))
                 {
                     imageData = binaryReader.ReadBytes(uploadImage.ContentLength);
                 }
-                // установка массива байтов
+
                 pic.Content = imageData;
 
                 db.Images.Add(pic);

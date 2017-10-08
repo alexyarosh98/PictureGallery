@@ -2,24 +2,32 @@
     ViewBag.Title = "Home Page";
 }
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
+@Styles.Render("~/Content/jquery.lightbox-0.5.css")
 
 @Html.Action("RenderGellery")
 <p>
     @Html.ActionLink("Добавить изображение", "Create")
 </p>
 
-
 @section scripts{
 
     @Scripts.Render("~/bundles/jquery")
 
     @Scripts.Render("~/Scripts/jquery-1.10.2.min.js")
+    @Scripts.Render("~/Scripts/imageGallery.js")
+    @Scripts.Render("~/Scripts/jquery.lightbox.js")
 
+    
+    
+    <script type="text/javascript">
+        jQuery(function () {
+            jQuery("a.lightbox").lightBox({
+                keyToClose: 'c',
+                txtImage: "sadsadas"
+
+            });
+        })
+    </script>
 
     @*<script type="text/javascript">
 
@@ -39,21 +47,38 @@
             });
 
         </script>*@
-    <script type="text/javascript">
-        $("#glrPag li a").click(function(event) {
+    
 
-            event.preventDefault();
-            var p = this.textContent;
-            $.getJSON("Home/GetGalleryPage",
+    @*<script type="text/javascript">
+        function loadImg(p) {
+
+            $.getJSON("GetGalleryPage",
                 { page: parseInt(p).toString() },
-                function(data) {
-                    for (var i = 0; i < 3 /*data.length*/; i++) {
-                        $("#img" + (i + 1)).attr("src", "Home/GetImage?id=" + data[i]);
+                function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        $("#img" + (i + 1)).attr("src", "GetImage?id=" + data[i]);
                     }
                 });
+        }
+    </script>
+    
+
+    <script type="text/javascript">
+        $(document).onload(loadImg(1));
+    </script>
+    
+
+    <script type="text/javascript">
+        $("#glrPag li a").click(function(event) {
+       
+            event.preventDefault();
+
+            var p = this.textContent;
+
+            loadImg(p);
         });
     
-    </script>
+    </script>*@
 
     @*<script type="text/javascript">
         
